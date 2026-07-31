@@ -13,7 +13,7 @@ struct PathPilotApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Text("PathPilot")
+            RootView()
         }
         .modelContainer(for: [
             UserProfile.self,
