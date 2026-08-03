@@ -53,6 +53,7 @@ struct DashboardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             ProgressRingView(progress: viewModel.progress)
+                .animation(.easeInOut(duration: 0.35), value: viewModel.progress)
                 .frame(maxWidth: .infinity)
         }
         .padding()
@@ -134,11 +135,12 @@ struct DashboardView: View {
 // MARK: - Milestone row
 
 private struct MilestoneChecklistRow: View {
+    @Environment(\.modelContext) private var modelContext
     @Bindable var milestone: Milestone
 
     var body: some View {
         Button {
-            milestone.isCompleted.toggle()
+            toggleMilestone()
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: milestone.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -159,6 +161,20 @@ private struct MilestoneChecklistRow: View {
             .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 1)
         }
         .buttonStyle(.plain)
+    }
+
+    private func toggleMilestone() {
+        let markingComplete = !milestone.isCompleted
+
+        withAnimation(.easeInOut(duration: 0.3)) {
+            milestone.isCompleted.toggle()
+        }
+
+        if markingComplete {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+
+        try? modelContext.save()
     }
 }
 
