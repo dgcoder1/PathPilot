@@ -35,6 +35,7 @@ struct SkillsListView: View {
                     ForEach(filteredSkills) { skill in
                         SkillRowView(skill: skill)
                     }
+                    .onDelete(perform: deleteSkills)
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
@@ -55,6 +56,18 @@ struct SkillsListView: View {
                 SkillFormView(category: selectedCategory)
                     .environment(\.modelContext, modelContext)
             }
+        }
+    }
+
+    private func deleteSkills(at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(filteredSkills[index])
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Skill delete failed: \(error.localizedDescription)")
         }
     }
 }
