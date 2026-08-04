@@ -15,6 +15,7 @@ struct SkillsListView: View {
 
     @State private var selectedCategory: SkillCategory = .current
     @State private var isShowingAddSheet = false
+    @State private var editingSkill: Skill?
 
     private var filteredSkills: [Skill] {
         allSkills.filter { $0.category == selectedCategory }
@@ -33,7 +34,9 @@ struct SkillsListView: View {
 
                 List {
                     ForEach(filteredSkills) { skill in
-                        SkillRowView(skill: skill)
+                        SkillRowView(skill: skill) {
+                            editingSkill = skill
+                        }
                     }
                     .onDelete(perform: deleteSkills)
                 }
@@ -54,6 +57,10 @@ struct SkillsListView: View {
             }
             .sheet(isPresented: $isShowingAddSheet) {
                 SkillFormView(category: selectedCategory)
+                    .environment(\.modelContext, modelContext)
+            }
+            .sheet(item: $editingSkill) { skill in
+                SkillFormView(category: skill.category, skill: skill)
                     .environment(\.modelContext, modelContext)
             }
         }
@@ -77,14 +84,20 @@ struct SkillsListView: View {
 private struct SkillRowView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var skill: Skill
+    var onEdit: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(skill.name)
-                .foregroundStyle(skill.status == .completed ? .secondary : Color.pathPilotPrimary)
-                .strikethrough(skill.status == .completed, color: .secondary)
-
-            Spacer(minLength: 0)
+            Button {
+                onEdit()
+            } label: {
+                Text(skill.name)
+                    .foregroundStyle(skill.status == .completed ? .secondary : Color.pathPilotPrimary)
+                    .strikethrough(skill.status == .completed, color: .secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens skill editor")
 
             Button {
                 cycleStatus()
