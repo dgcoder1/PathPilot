@@ -32,16 +32,20 @@ struct SkillsListView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 12)
 
-                List {
-                    ForEach(filteredSkills) { skill in
-                        SkillRowView(skill: skill) {
-                            editingSkill = skill
+                if filteredSkills.isEmpty {
+                    emptyState
+                } else {
+                    List {
+                        ForEach(filteredSkills) { skill in
+                            SkillRowView(skill: skill) {
+                                editingSkill = skill
+                            }
                         }
+                        .onDelete(perform: deleteSkills)
                     }
-                    .onDelete(perform: deleteSkills)
+                    .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
                 }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
             }
             .background(Color.pathPilotBackground)
             .navigationTitle("Skills")
@@ -63,6 +67,34 @@ struct SkillsListView: View {
                 SkillFormView(category: skill.category, skill: skill)
                     .environment(\.modelContext, modelContext)
             }
+        }
+    }
+
+    private var emptyState: some View {
+        EmptyStateView(
+            systemImage: "brain.head.profile",
+            title: emptyStateTitle,
+            message: emptyStateMessage,
+            buttonTitle: "Add Skill",
+            buttonAction: { isShowingAddSheet = true }
+        )
+    }
+
+    private var emptyStateTitle: String {
+        switch selectedCategory {
+        case .current:
+            "No current skills"
+        case .toLearn:
+            "No skills to learn yet"
+        }
+    }
+
+    private var emptyStateMessage: String {
+        switch selectedCategory {
+        case .current:
+            "Add skills you already have to track your strengths."
+        case .toLearn:
+            "Add skills you're building toward your target role."
         }
     }
 
@@ -177,9 +209,26 @@ private struct SkillRowView: View {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("With Skills") {
     SkillsListView()
         .modelContainer(previewContainer)
+}
+
+#Preview("Empty Current Skills") {
+    SkillsListView()
+        .modelContainer(emptyPreviewContainer)
+}
+
+private var emptyPreviewContainer: ModelContainer {
+    let container = try! ModelContainer(
+        for: Skill.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    let context = container.mainContext
+
+    context.insert(Skill(name: "AWS", category: .toLearn, status: .notStarted))
+
+    return container
 }
 
 private var previewContainer: ModelContainer {
