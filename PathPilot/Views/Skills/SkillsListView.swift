@@ -10,7 +10,15 @@ import SwiftUI
 
 struct SkillsListView: View {
 
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Skill.createdAt) private var allSkills: [Skill]
+
     @State private var selectedCategory: SkillCategory = .current
+    @State private var isShowingAddSheet = false
+
+    private var filteredSkills: [Skill] {
+        allSkills.filter { $0.category == selectedCategory }
+    }
 
     var body: some View {
         NavigationStack {
@@ -23,41 +31,31 @@ struct SkillsListView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 12)
 
-                SkillsSegmentList(category: selectedCategory)
+                List {
+                    ForEach(filteredSkills) { skill in
+                        SkillRowView(skill: skill)
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
             }
             .background(Color.pathPilotBackground)
             .navigationTitle("Skills")
-        }
-    }
-}
-
-// MARK: - Filtered list
-
-/// Separate view so `@Query` re-initializes when the segment changes.
-private struct SkillsSegmentList: View {
-
-    let category: SkillCategory
-
-    @Query private var skills: [Skill]
-
-    init(category: SkillCategory) {
-        self.category = category
-        _skills = Query(
-            filter: #Predicate<Skill> { skill in
-                skill.category == category
-            },
-            sort: \Skill.createdAt
-        )
-    }
-
-    var body: some View {
-        List {
-            ForEach(skills) { skill in
-                SkillRowView(skill: skill)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        isShowingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add skill")
+                }
+            }
+            .sheet(isPresented: $isShowingAddSheet) {
+                SkillFormView(category: selectedCategory)
+                    .environment(\.modelContext, modelContext)
             }
         }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
     }
 }
 
