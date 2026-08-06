@@ -20,6 +20,7 @@ struct PathPilotApp: App {
             CareerGoal.self,
             Milestone.self,
             Skill.self,
+            Certification.self,
         ])
     }
 }
