@@ -2,8 +2,7 @@
 //  CertificationsListView.swift
 //  PathPilot
 //
-//  Certification tracker — list with status badges (Day 5).
-//  Step 6: tap row to edit. Empty state arrives in Step 7.
+//  Day 5 certification tracker — list, CRUD, status badges, and empty state.
 //
 
 import SwiftData
@@ -19,16 +18,22 @@ struct CertificationsListView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(certifications) { certification in
-                    CertificationRowView(certification: certification) {
-                        editingCertification = certification
+            Group {
+                if certifications.isEmpty {
+                    emptyState
+                } else {
+                    List {
+                        ForEach(certifications) { certification in
+                            CertificationRowView(certification: certification) {
+                                editingCertification = certification
+                            }
+                        }
+                        .onDelete(perform: deleteCertifications)
                     }
+                    .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
                 }
-                .onDelete(perform: deleteCertifications)
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
             .background(Color.pathPilotBackground)
             .navigationTitle("Certifications")
             .toolbar {
@@ -50,6 +55,16 @@ struct CertificationsListView: View {
                     .environment(\.modelContext, modelContext)
             }
         }
+    }
+
+    private var emptyState: some View {
+        EmptyStateView(
+            systemImage: "rosette",
+            title: "No certifications yet",
+            message: "Track certs you're planning, studying for, or have earned.",
+            buttonTitle: "Add Certification",
+            buttonAction: { isShowingAddSheet = true }
+        )
     }
 
     private func deleteCertifications(at offsets: IndexSet) {
