@@ -14,6 +14,7 @@ struct DashboardView: View {
     @Query private var goals: [CareerGoal]
     @Query private var milestones: [Milestone]
     @Query private var skills: [Skill]
+    @Query private var certifications: [Certification]
 
     @State private var viewModel = DashboardViewModel()
 
@@ -114,8 +115,15 @@ struct DashboardView: View {
 
     /// Changes when any @Query result relevant to the dashboard updates.
     private var syncToken: String {
-        let completed = milestones.filter(\.isCompleted).count
-        return "\(profiles.first?.name ?? "")|\(activeGoal?.targetRole ?? "")|\(milestones.count)|\(completed)|\(skills.count)"
+        let milestoneCompleted = milestones.filter(\.isCompleted).count
+        let skillsCompleted = skills.filter { $0.status == .completed }.count
+        let certsCompleted = certifications.filter { $0.status == .completed }.count
+        return """
+        \(profiles.first?.name ?? "")|\(activeGoal?.targetRole ?? "")|\
+        \(milestones.count)|\(milestoneCompleted)|\
+        \(skills.count)|\(skillsCompleted)|\
+        \(certifications.count)|\(certsCompleted)
+        """
     }
 
     private var activeGoal: CareerGoal? {
@@ -127,7 +135,8 @@ struct DashboardView: View {
             profile: profiles.first,
             goal: activeGoal,
             milestones: milestones,
-            skills: skills
+            skills: skills,
+            certifications: certifications
         )
     }
 }
@@ -221,7 +230,7 @@ private struct DashboardPreviewContainer: View {
 
     private var previewContainer: ModelContainer {
         let container = try! ModelContainer(
-            for: UserProfile.self, CareerGoal.self, Milestone.self, Skill.self,
+            for: UserProfile.self, CareerGoal.self, Milestone.self, Skill.self, Certification.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let context = container.mainContext
@@ -231,6 +240,8 @@ private struct DashboardPreviewContainer: View {
         context.insert(Milestone(title: "Complete AWS Cloud Practitioner", sortOrder: 0))
         context.insert(Skill(name: "Python", category: .current, status: .completed))
         context.insert(Skill(name: "AWS", category: .toLearn, status: .notStarted))
+        context.insert(Certification(name: "AWS Solutions Architect", status: .inProgress))
+        context.insert(Certification(name: "CompTIA Security+", status: .completed))
 
         return container
     }

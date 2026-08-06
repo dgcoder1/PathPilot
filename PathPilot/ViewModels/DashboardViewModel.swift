@@ -17,7 +17,8 @@ final class DashboardViewModel {
     private(set) var profile: UserProfile?
     private(set) var goal: CareerGoal?
     private(set) var milestones: [Milestone] = []
-    private(set) var skillsCount: Int = 0
+    private(set) var skills: [Skill] = []
+    private(set) var certifications: [Certification] = []
 
     // MARK: - Display copy
 
@@ -38,7 +39,12 @@ final class DashboardViewModel {
     // MARK: - Progress
 
     var progress: Double {
-        ProgressCalculator.milestoneProgress(milestones: milestones)
+        ProgressCalculator.overallProgress(
+            skills: skills,
+            certifications: certifications,
+            milestones: milestones,
+            applicationsSubmitted: applicationsCount
+        )
     }
 
     var sortedMilestones: [Milestone] {
@@ -52,8 +58,9 @@ final class DashboardViewModel {
 
     // MARK: - Quick stats
 
-    /// Certification model arrives on Day 5 — count stays 0 until then.
-    var certificationsCount: Int { 0 }
+    var skillsCount: Int { skills.count }
+
+    var certificationsCount: Int { certifications.count }
 
     /// Job application model arrives on Day 6 — count stays 0 until then.
     var applicationsCount: Int { 0 }
@@ -65,11 +72,13 @@ final class DashboardViewModel {
         profile: UserProfile?,
         goal: CareerGoal?,
         milestones: [Milestone],
-        skills: [Skill]
+        skills: [Skill],
+        certifications: [Certification]
     ) {
         self.profile = profile
         self.goal = goal
         self.milestones = milestones
-        self.skillsCount = skills.count
+        self.skills = skills
+        self.certifications = certifications
     }
 }
