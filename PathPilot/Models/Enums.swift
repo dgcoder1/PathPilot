@@ -3,7 +3,7 @@
 //  PathPilot
 //
 //  Shared enum types used by SwiftData models.
-//  Day 1: skill enums. Day 5: CertStatus. Application enums arrive on Day 6.
+//  Day 1: skill enums. Day 5: CertStatus. Day 6: ApplicationStatus.
 //
 
 import Foundation
@@ -26,4 +26,13 @@ enum CertStatus: String, Codable, CaseIterable {
     case planned
     case inProgress
     case completed
+}
+
+/// Pipeline state for a job application.
+enum ApplicationStatus: String, Codable, CaseIterable {
+    case saved
+    case applied
+    case interview
+    case offer
+    case rejected
 }

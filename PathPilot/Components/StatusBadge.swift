@@ -3,7 +3,7 @@
 //  PathPilot
 //
 //  Reusable status pill for list rows (Certifications Day 5, Applications Day 6).
-//  Accepts custom text and color, or a CertStatus for certification rows.
+//  Accepts custom text and color, CertStatus, or ApplicationStatus.
 //
 
 import SwiftUI
@@ -20,6 +20,11 @@ struct StatusBadge: View {
     init(status: CertStatus) {
         self.text = Self.title(for: status)
         self.color = Self.color(for: status)
+    }
+
+    init(applicationStatus: ApplicationStatus) {
+        self.text = Self.title(for: applicationStatus)
+        self.color = Self.color(for: applicationStatus)
     }
 
     var body: some View {
@@ -53,6 +58,36 @@ struct StatusBadge: View {
             Color.pathPilotAccent
         }
     }
+
+    private static func title(for status: ApplicationStatus) -> String {
+        switch status {
+        case .saved:
+            "Saved"
+        case .applied:
+            "Applied"
+        case .interview:
+            "Interview"
+        case .offer:
+            "Offer"
+        case .rejected:
+            "Rejected"
+        }
+    }
+
+    private static func color(for status: ApplicationStatus) -> Color {
+        switch status {
+        case .saved:
+            .secondary
+        case .applied:
+            .blue
+        case .interview:
+            .orange
+        case .offer:
+            Color.pathPilotAccent
+        case .rejected:
+            .red
+        }
+    }
 }
 
 // MARK: - Preview
@@ -68,8 +103,21 @@ struct StatusBadge: View {
     .background(Color.pathPilotBackground)
 }
 
+#Preview("Application Statuses") {
+    VStack(spacing: 12) {
+        StatusBadge(applicationStatus: .saved)
+        StatusBadge(applicationStatus: .applied)
+        StatusBadge(applicationStatus: .interview)
+        StatusBadge(applicationStatus: .offer)
+        StatusBadge(applicationStatus: .rejected)
+    }
+    .padding()
+    .frame(maxWidth: .infinity)
+    .background(Color.pathPilotBackground)
+}
+
 #Preview("Custom Badge") {
-    StatusBadge(text: "Applied", color: .blue)
+    StatusBadge(text: "Custom", color: .purple)
         .padding()
         .background(Color.pathPilotBackground)
 }
