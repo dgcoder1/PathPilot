@@ -5,9 +5,9 @@
 //  WHAT: Applications tab — list of job applications with status badges and add sheet.
 //  WHY:  Tracks hiring pipeline (Saved → Applied → Interview → Offer / Rejected).
 //  CONNECTS TO: ApplicationFormView, JobApplication model, StatusBadge, EmptyStateView.
-//  EDIT WHEN: Adding swipe-to-delete (Task 5), tap-to-edit (Task 6), or empty-state CTA (Task 7).
+//  EDIT WHEN: Adding tap-to-edit (Task 6) or empty-state CTA (Task 7).
 //
-//  STATUS: Task 4 — toolbar "+" presents ApplicationFormView. Delete/edit/empty CTA still pending.
+//  STATUS: Task 5 — add + swipe-to-delete persist. Edit/empty CTA still pending.
 //
 
 import SwiftData
@@ -49,6 +49,7 @@ struct ApplicationsListView: View {
                         ForEach(sortedApplications) { application in
                             ApplicationRowView(application: application)
                         }
+                        .onDelete(perform: deleteApplications)
                     }
                     .listStyle(.insetGrouped)
                     .scrollContentBackground(.hidden)
@@ -77,6 +78,18 @@ struct ApplicationsListView: View {
             title: "No applications yet",
             message: "When you start applying, track your pipeline here."
         )
+    }
+
+    /// Offsets match the on-screen list (`sortedApplications`), not the unsorted `@Query`.
+    private func deleteApplications(at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(sortedApplications[index])
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            assertionFailure("Application delete failed: \(error.localizedDescription)")
+        }
     }
 }
 
