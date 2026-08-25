@@ -2,12 +2,12 @@
 //  ApplicationsListView.swift
 //  PathPilot — Views/Applications/
 //
-//  WHAT: Applications tab — read-only list of job applications with status badges.
+//  WHAT: Applications tab — list of job applications with status badges and add sheet.
 //  WHY:  Tracks hiring pipeline (Saved → Applied → Interview → Offer / Rejected).
-//  CONNECTS TO: JobApplication model, StatusBadge, EmptyStateView.
-//  EDIT WHEN: Adding CRUD (Tasks 4–6), edit sheets, or grouped sections (V2).
+//  CONNECTS TO: ApplicationFormView, JobApplication model, StatusBadge, EmptyStateView.
+//  EDIT WHEN: Adding swipe-to-delete (Task 5), tap-to-edit (Task 6), or empty-state CTA (Task 7).
 //
-//  STATUS: Task 3 complete (read-only). Tasks 4–6 will add +, delete, edit, appliedDate.
+//  STATUS: Task 4 — toolbar "+" presents ApplicationFormView. Delete/edit/empty CTA still pending.
 //
 
 import SwiftData
@@ -15,7 +15,10 @@ import SwiftUI
 
 struct ApplicationsListView: View {
 
+    @Environment(\.modelContext) private var modelContext
     @Query private var applications: [JobApplication]
+
+    @State private var isShowingAddSheet = false
 
     /// @Query can't sort enums in pipeline order — we sort in-memory instead.
     private var sortedApplications: [JobApplication] {
@@ -53,6 +56,18 @@ struct ApplicationsListView: View {
             }
             .background(Color.pathPilotBackground)
             .navigationTitle("Applications")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button { isShowingAddSheet = true } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add application")
+                }
+            }
+            .sheet(isPresented: $isShowingAddSheet) {
+                ApplicationFormView()
+                    .environment(\.modelContext, modelContext)
+            }
         }
     }
 
