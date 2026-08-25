@@ -1,15 +1,20 @@
 //
 //  RootView.swift
-//  PathPilot
+//  PathPilot — Views/
 //
-//  Top-level view that decides what the user sees at launch.
-//  First-time users see onboarding; returning users go straight to the tabs.
+//  WHAT: Top-level router shown at launch.
+//  WHY:  First-time users need onboarding; returning users skip straight to tabs.
+//        @AppStorage is the gate — fast to read, survives app restarts.
+//  CONNECTS TO: OnboardingContainerView (new users), MainTabView (returning users).
+//  EDIT WHEN: Changing launch flow (e.g. login screen in V2).
 //
 
 import SwiftUI
 
 struct RootView: View {
 
+    // UserDefaults flag set to true when onboarding finishes.
+    // Separate from SwiftData — used only for routing, not profile data.
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {

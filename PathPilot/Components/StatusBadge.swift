@@ -1,9 +1,11 @@
 //
 //  StatusBadge.swift
-//  PathPilot
+//  PathPilot — Components/
 //
-//  Reusable status pill for list rows (Certifications Day 5, Applications Day 6).
-//  Accepts custom text and color, CertStatus, or ApplicationStatus.
+//  WHAT: Colored capsule pill showing a status label (Planned, Applied, etc.).
+//  WHY:  Consistent status styling across cert and application list rows.
+//  CONNECTS TO: CertificationsListView, ApplicationsListView.
+//  EDIT WHEN: Adding new status enums — add title/color mapping in the private helpers.
 //
 
 import SwiftUI
@@ -12,16 +14,21 @@ struct StatusBadge: View {
     let text: String
     let color: Color
 
+    // MARK: - Initializers
+
+    /// Fully custom badge — any text + color.
     init(text: String, color: Color) {
         self.text = text
         self.color = color
     }
 
+    /// Certification row badge — maps CertStatus → label + color.
     init(status: CertStatus) {
         self.text = Self.title(for: status)
         self.color = Self.color(for: status)
     }
 
+    /// Application row badge — maps ApplicationStatus → label + color.
     init(applicationStatus: ApplicationStatus) {
         self.text = Self.title(for: applicationStatus)
         self.color = Self.color(for: applicationStatus)
@@ -37,55 +44,43 @@ struct StatusBadge: View {
             .clipShape(Capsule())
     }
 
+    // MARK: - Certification mapping
+
     private static func title(for status: CertStatus) -> String {
         switch status {
-        case .planned:
-            "Planned"
-        case .inProgress:
-            "In Progress"
-        case .completed:
-            "Completed"
+        case .planned: "Planned"
+        case .inProgress: "In Progress"
+        case .completed: "Completed"
         }
     }
 
     private static func color(for status: CertStatus) -> Color {
         switch status {
-        case .planned:
-            .secondary
-        case .inProgress:
-            .orange
-        case .completed:
-            Color.pathPilotAccent
+        case .planned: .secondary
+        case .inProgress: .orange
+        case .completed: Color.pathPilotAccent
         }
     }
 
+    // MARK: - Application mapping
+
     private static func title(for status: ApplicationStatus) -> String {
         switch status {
-        case .saved:
-            "Saved"
-        case .applied:
-            "Applied"
-        case .interview:
-            "Interview"
-        case .offer:
-            "Offer"
-        case .rejected:
-            "Rejected"
+        case .saved: "Saved"
+        case .applied: "Applied"
+        case .interview: "Interview"
+        case .offer: "Offer"
+        case .rejected: "Rejected"
         }
     }
 
     private static func color(for status: ApplicationStatus) -> Color {
         switch status {
-        case .saved:
-            .secondary
-        case .applied:
-            .blue
-        case .interview:
-            .orange
-        case .offer:
-            Color.pathPilotAccent
-        case .rejected:
-            .red
+        case .saved: .secondary
+        case .applied: .blue
+        case .interview: .orange
+        case .offer: Color.pathPilotAccent
+        case .rejected: .red
         }
     }
 }

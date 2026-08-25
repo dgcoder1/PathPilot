@@ -1,8 +1,14 @@
 //
 //  SkillsListView.swift
-//  PathPilot
+//  PathPilot — Views/Skills/
 //
-//  Skills tracker — segmented Current / To Learn list (Day 4).
+//  WHAT: Skills tab — segmented Current / To Learn list with full CRUD.
+//  WHY:  Users track existing strengths and skills they're building toward their goal.
+//  CONNECTS TO: SkillFormView (add/edit sheet), Skill model, EmptyStateView.
+//  EDIT WHEN: Changing list layout, filter logic, or status cycling behavior.
+//
+//  PATTERN: @Query + modelContext directly in view (no ViewModel for V1).
+//           nil skill in form = add; non-nil = edit. Always pass .environment(\.modelContext).
 //
 
 import SwiftData
@@ -17,6 +23,7 @@ struct SkillsListView: View {
     @State private var isShowingAddSheet = false
     @State private var editingSkill: Skill?
 
+    /// Filters @Query results to the selected segment (Current vs To Learn).
     private var filteredSkills: [Skill] {
         allSkills.filter { $0.category == selectedCategory }
     }
@@ -51,9 +58,7 @@ struct SkillsListView: View {
             .navigationTitle("Skills")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        isShowingAddSheet = true
-                    } label: {
+                    Button { isShowingAddSheet = true } label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add skill")
@@ -82,19 +87,15 @@ struct SkillsListView: View {
 
     private var emptyStateTitle: String {
         switch selectedCategory {
-        case .current:
-            "No current skills"
-        case .toLearn:
-            "No skills to learn yet"
+        case .current: "No current skills"
+        case .toLearn: "No skills to learn yet"
         }
     }
 
     private var emptyStateMessage: String {
         switch selectedCategory {
-        case .current:
-            "Add skills you already have to track your strengths."
-        case .toLearn:
-            "Add skills you're building toward your target role."
+        case .current: "Add skills you already have to track your strengths."
+        case .toLearn: "Add skills you're building toward your target role."
         }
     }
 
@@ -102,7 +103,6 @@ struct SkillsListView: View {
         for index in offsets {
             modelContext.delete(filteredSkills[index])
         }
-
         do {
             try modelContext.save()
         } catch {
@@ -111,7 +111,7 @@ struct SkillsListView: View {
     }
 }
 
-// MARK: - Row
+// MARK: - Row (tap name = edit, tap status pill = cycle status)
 
 private struct SkillRowView: View {
     @Environment(\.modelContext) private var modelContext
@@ -120,9 +120,7 @@ private struct SkillRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Button {
-                onEdit()
-            } label: {
+            Button { onEdit() } label: {
                 Text(skill.name)
                     .foregroundStyle(skill.status == .completed ? .secondary : Color.pathPilotPrimary)
                     .strikethrough(skill.status == .completed, color: .secondary)
@@ -131,13 +129,10 @@ private struct SkillRowView: View {
             .buttonStyle(.plain)
             .accessibilityHint("Opens skill editor")
 
-            Button {
-                cycleStatus()
-            } label: {
+            Button { cycleStatus() } label: {
                 HStack(spacing: 6) {
                     Image(systemName: statusIcon)
-                    Text(statusTitle)
-                        .font(.caption.weight(.medium))
+                    Text(statusTitle).font(.caption.weight(.medium))
                 }
                 .foregroundStyle(statusColor)
                 .padding(.horizontal, 10)
@@ -153,37 +148,29 @@ private struct SkillRowView: View {
 
     private var statusTitle: String {
         switch skill.status {
-        case .notStarted:
-            "Not Started"
-        case .inProgress:
-            "In Progress"
-        case .completed:
-            "Completed"
+        case .notStarted: "Not Started"
+        case .inProgress: "In Progress"
+        case .completed: "Completed"
         }
     }
 
     private var statusIcon: String {
         switch skill.status {
-        case .notStarted:
-            "circle"
-        case .inProgress:
-            "clock"
-        case .completed:
-            "checkmark.circle.fill"
+        case .notStarted: "circle"
+        case .inProgress: "clock"
+        case .completed: "checkmark.circle.fill"
         }
     }
 
     private var statusColor: Color {
         switch skill.status {
-        case .notStarted:
-            .secondary
-        case .inProgress:
-            .orange
-        case .completed:
-            Color.pathPilotAccent
+        case .notStarted: .secondary
+        case .inProgress: .orange
+        case .completed: Color.pathPilotAccent
         }
     }
 
+    /// Cycles Not Started → In Progress → Completed → Not Started.
     private func cycleStatus() {
         let statuses = SkillStatus.allCases
         guard let currentIndex = statuses.firstIndex(of: skill.status) else { return }
@@ -210,13 +197,11 @@ private struct SkillRowView: View {
 // MARK: - Preview
 
 #Preview("With Skills") {
-    SkillsListView()
-        .modelContainer(previewContainer)
+    SkillsListView().modelContainer(previewContainer)
 }
 
 #Preview("Empty Current Skills") {
-    SkillsListView()
-        .modelContainer(emptyPreviewContainer)
+    SkillsListView().modelContainer(emptyPreviewContainer)
 }
 
 private var emptyPreviewContainer: ModelContainer {
@@ -224,10 +209,7 @@ private var emptyPreviewContainer: ModelContainer {
         for: Skill.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    let context = container.mainContext
-
-    context.insert(Skill(name: "AWS", category: .toLearn, status: .notStarted))
-
+    container.mainContext.insert(Skill(name: "AWS", category: .toLearn, status: .notStarted))
     return container
 }
 
@@ -237,11 +219,9 @@ private var previewContainer: ModelContainer {
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     let context = container.mainContext
-
     context.insert(Skill(name: "Python", category: .current, status: .completed))
     context.insert(Skill(name: "SQL", category: .current, status: .inProgress))
     context.insert(Skill(name: "AWS", category: .toLearn, status: .notStarted))
     context.insert(Skill(name: "Terraform", category: .toLearn, status: .notStarted))
-
     return container
 }

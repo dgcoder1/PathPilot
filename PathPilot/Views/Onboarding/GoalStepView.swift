@@ -1,8 +1,11 @@
 //
 //  GoalStepView.swift
-//  PathPilot
+//  PathPilot — Views/Onboarding/
 //
-//  Onboarding Step 2 — target career role.
+//  WHAT: Onboarding Step 2 — collects target career role.
+//  WHY:  Drives the dashboard goal card and overall app purpose.
+//  CONNECTS TO: OnboardingViewModel.targetRole → CareerGoal model on finish.
+//  EDIT WHEN: Adding role suggestions, templates, or picker UI (V2).
 //
 
 import SwiftUI

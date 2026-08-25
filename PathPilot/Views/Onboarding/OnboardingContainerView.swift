@@ -1,9 +1,11 @@
 //
 //  OnboardingContainerView.swift
-//  PathPilot
+//  PathPilot — Views/Onboarding/
 //
-//  Hosts the 5-step onboarding wizard: progress indicator, step content,
-//  and Back / Next (or Finish) navigation.
+//  WHAT: Shell for the 5-step onboarding wizard — progress bar, steps, navigation.
+//  WHY:  One container owns step switching and finish logic; step views stay simple.
+//  CONNECTS TO: OnboardingViewModel, 5 step views, RootView (shown when onboarding incomplete).
+//  EDIT WHEN: Adding/removing steps or changing navigation button behavior.
 //
 
 import SwiftData
@@ -41,25 +43,21 @@ struct OnboardingContainerView: View {
         }
     }
 
+    // MARK: - Step routing
+
     @ViewBuilder
     private var stepContent: some View {
         switch viewModel.currentStep {
-        case 0:
-            WelcomeView()
-        case 1:
-            BackgroundStepView(viewModel: viewModel)
-        case 2:
-            GoalStepView(viewModel: viewModel)
-        case 3:
-            SkillsStepView(viewModel: viewModel)
-        case 4:
-            MilestoneStepView(viewModel: viewModel)
-        default:
-            WelcomeView()
+        case 0: WelcomeView()
+        case 1: BackgroundStepView(viewModel: viewModel)
+        case 2: GoalStepView(viewModel: viewModel)
+        case 3: SkillsStepView(viewModel: viewModel)
+        case 4: MilestoneStepView(viewModel: viewModel)
+        default: WelcomeView()
         }
     }
 
-    // MARK: - Progress
+    // MARK: - Progress indicator
 
     private var progressHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -75,7 +73,7 @@ struct OnboardingContainerView: View {
         }
     }
 
-    // MARK: - Navigation
+    // MARK: - Back / Next / Finish buttons
 
     private var navigationBar: some View {
         HStack(spacing: 12) {
@@ -95,12 +93,8 @@ struct OnboardingContainerView: View {
     }
 
     private var primaryButtonTitle: String {
-        if viewModel.isLastStep {
-            return "Finish"
-        }
-        if viewModel.currentStep == 0 {
-            return "Get Started"
-        }
+        if viewModel.isLastStep { return "Finish" }
+        if viewModel.currentStep == 0 { return "Get Started" }
         return "Next"
     }
 
@@ -112,6 +106,7 @@ struct OnboardingContainerView: View {
         }
     }
 
+    /// Saves to SwiftData, then flips @AppStorage so RootView shows MainTabView.
     private func finishOnboarding() {
         do {
             try viewModel.completeOnboarding(context: modelContext)
@@ -123,8 +118,9 @@ struct OnboardingContainerView: View {
     }
 }
 
-// MARK: - Shared onboarding UI
+// MARK: - Shared onboarding UI (used by step views)
 
+/// Title + subtitle block at the top of form steps.
 struct OnboardingStepHeader: View {
     let title: String
     let subtitle: String
@@ -142,6 +138,7 @@ struct OnboardingStepHeader: View {
     }
 }
 
+/// Styled text field used across onboarding form steps.
 struct OnboardingTextField: View {
     let title: String
     let placeholder: String

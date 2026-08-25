@@ -1,8 +1,13 @@
 //
 //  DashboardView.swift
-//  PathPilot
+//  PathPilot — Views/Dashboard/
 //
-//  Career dashboard — live data from SwiftData, progress ring, milestones, quick stats.
+//  WHAT: Hero screen — welcome message, goal card, progress ring, milestones, quick stats.
+//  WHY:  Central hub tying together all trackers; user sees overall career progress here.
+//  CONNECTS TO: DashboardViewModel, ProgressRingView, CareerCard, ProgressCalculator.
+//  EDIT WHEN: Adding dashboard widgets, wiring live application count (Task 9).
+//
+//  PATTERN: @Query fetches live SwiftData → syncToken triggers viewModel.update(...).
 //
 
 import SwiftData
@@ -10,6 +15,7 @@ import SwiftUI
 
 struct DashboardView: View {
 
+    // Live database queries — SwiftUI auto-refreshes when data changes.
     @Query private var profiles: [UserProfile]
     @Query private var goals: [CareerGoal]
     @Query private var milestones: [Milestone]
@@ -29,22 +35,21 @@ struct DashboardView: View {
                     CareerCard(title: "Your Goal", value: viewModel.targetRole)
 
                     progressSection
-
                     milestonesSection
-
                     quickStatsSection
                 }
                 .padding()
             }
             .background(Color.pathPilotBackground)
             .navigationTitle("Dashboard")
+            // Re-sync ViewModel whenever any @Query result changes.
             .task(id: syncToken) {
                 syncViewModel()
             }
         }
     }
 
-    // MARK: - Sections
+    // MARK: - UI Sections
 
     private var progressSection: some View {
         VStack(spacing: 12) {
@@ -92,28 +97,16 @@ struct DashboardView: View {
                 .foregroundStyle(Color.pathPilotPrimary)
 
             HStack(spacing: 12) {
-                QuickStatCard(
-                    title: "Skills",
-                    count: viewModel.skillsCount,
-                    systemImage: "brain.head.profile"
-                )
-                QuickStatCard(
-                    title: "Certs",
-                    count: viewModel.certificationsCount,
-                    systemImage: "rosette"
-                )
-                QuickStatCard(
-                    title: "Apps",
-                    count: viewModel.applicationsCount,
-                    systemImage: "briefcase"
-                )
+                QuickStatCard(title: "Skills", count: viewModel.skillsCount, systemImage: "brain.head.profile")
+                QuickStatCard(title: "Certs", count: viewModel.certificationsCount, systemImage: "rosette")
+                QuickStatCard(title: "Apps", count: viewModel.applicationsCount, systemImage: "briefcase")
             }
         }
     }
 
-    // MARK: - View model sync
+    // MARK: - ViewModel sync
 
-    /// Changes when any @Query result relevant to the dashboard updates.
+    /// String fingerprint of all relevant data — when it changes, .task re-runs syncViewModel().
     private var syncToken: String {
         let milestoneCompleted = milestones.filter(\.isCompleted).count
         let skillsCompleted = skills.filter { $0.status == .completed }.count
@@ -141,7 +134,7 @@ struct DashboardView: View {
     }
 }
 
-// MARK: - Milestone row
+// MARK: - Milestone row (tap to toggle complete)
 
 private struct MilestoneChecklistRow: View {
     @Environment(\.modelContext) private var modelContext
@@ -187,7 +180,7 @@ private struct MilestoneChecklistRow: View {
     }
 }
 
-// MARK: - Quick stat card
+// MARK: - Quick stat card (read-only count display)
 
 private struct QuickStatCard: View {
     let title: String

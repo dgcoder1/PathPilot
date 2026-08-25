@@ -1,9 +1,11 @@
 //
 //  Milestone.swift
-//  PathPilot
+//  PathPilot — Models/
 //
-//  A checklist item on the user's career roadmap, e.g. "Complete AWS SAA".
-//  Shown on the dashboard; toggling completion updates the progress ring (Day 3).
+//  WHAT: SwiftData model for a career roadmap checklist item.
+//  WHY:  Milestones are the "next steps" on the dashboard; toggling them updates progress.
+//  CONNECTS TO: DashboardView (checklist + progress ring), ProgressCalculator (20% weight).
+//  EDIT WHEN: Adding due dates, notifications, or reorder UI (V2).
 //
 
 import Foundation
@@ -14,6 +16,7 @@ final class Milestone {
 
     var title: String
     var isCompleted: Bool
+    /// Controls display order on the dashboard checklist.
     var sortOrder: Int
     var createdAt: Date
 

@@ -1,8 +1,11 @@
 //
 //  ProfileView.swift
-//  PathPilot
+//  PathPilot — Views/Profile/
 //
-//  Placeholder for the profile tab (implemented on Day 6).
+//  WHAT: Profile tab — placeholder for Day 6 read-only profile screen.
+//  WHY:  Will show name, background, target role, Reset Onboarding, app version.
+//  CONNECTS TO: UserProfile, CareerGoal (@Query), RootView (@AppStorage reset).
+//  EDIT WHEN: Implementing Task 8 — replace placeholder with live @Query data.
 //
 
 import SwiftUI

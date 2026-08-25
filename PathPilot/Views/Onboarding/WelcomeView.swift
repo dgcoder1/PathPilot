@@ -1,8 +1,11 @@
 //
 //  WelcomeView.swift
-//  PathPilot
+//  PathPilot — Views/Onboarding/
 //
-//  Onboarding Step 0 — intro screen before collecting user details.
+//  WHAT: Onboarding Step 0 — welcome / intro screen (no form fields).
+//  WHY:  Sets context before collecting data; only step with no required input.
+//  CONNECTS TO: OnboardingContainerView (case 0 in stepContent switch).
+//  EDIT WHEN: Updating welcome copy or branding.
 //
 
 import SwiftUI

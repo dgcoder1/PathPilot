@@ -1,16 +1,18 @@
 //
 //  ProgressRingView.swift
-//  PathPilot
+//  PathPilot — Components/
 //
-//  Circular progress indicator for the dashboard hero section.
-//  Accepts a 0.0–1.0 fraction; displays whole-number percent in the center.
+//  WHAT: Circular progress ring with percentage label in the center.
+//  WHY:  Dashboard hero visual — shows overall career progress at a glance.
+//  CONNECTS TO: DashboardView passes viewModel.progress (0.0–1.0).
+//  EDIT WHEN: Adding animation (Day 7), accessibility labels, or size variants.
 //
 
 import SwiftUI
 
 struct ProgressRingView: View {
 
-    /// Completion fraction from 0.0 (empty) to 1.0 (full ring).
+    /// Completion fraction from 0.0 (empty ring) to 1.0 (full ring).
     let progress: Double
     var lineWidth: CGFloat = 12
     var size: CGFloat = 140
@@ -21,14 +23,16 @@ struct ProgressRingView: View {
 
     var body: some View {
         ZStack {
+            // Background track — always full circle, faint primary color.
             Circle()
                 .trim(from: 0, to: 1)
                 .stroke(
                     Color.pathPilotPrimary.opacity(0.15),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
-                .rotationEffect(.degrees(-90))
+                .rotationEffect(.degrees(-90))   // Start at 12 o'clock
 
+            // Foreground arc — grows with progress.
             Circle()
                 .trim(from: 0, to: clampedProgress)
                 .stroke(

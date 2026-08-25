@@ -1,8 +1,11 @@
 //
 //  SkillFormView.swift
-//  PathPilot
+//  PathPilot — Views/Skills/
 //
-//  Shared sheet for adding and editing skills (Day 4).
+//  WHAT: Modal sheet for adding or editing a single skill.
+//  WHY:  One form handles both modes — nil skill = add, non-nil = edit (shared pattern).
+//  CONNECTS TO: SkillsListView presents this as a .sheet.
+//  EDIT WHEN: Adding fields (notes, proficiency level) or changing default status logic.
 //
 
 import SwiftData
@@ -30,9 +33,7 @@ struct SkillFormView: View {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var canSave: Bool {
-        !trimmedName.isEmpty
-    }
+    private var canSave: Bool { !trimmedName.isEmpty }
 
     var body: some View {
         NavigationStack {
@@ -48,16 +49,11 @@ struct SkillFormView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+                    Button("Cancel") { dismiss() }
                 }
-
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        save()
-                    }
-                    .disabled(!canSave)
+                    Button("Save") { save() }
+                        .disabled(!canSave)
                 }
             }
         }
@@ -65,10 +61,8 @@ struct SkillFormView: View {
 
     private var categorySectionTitle: String {
         switch category {
-        case .current:
-            "Current skill"
-        case .toLearn:
-            "Skill to learn"
+        case .current: "Current skill"
+        case .toLearn: "Skill to learn"
         }
     }
 
@@ -78,13 +72,9 @@ struct SkillFormView: View {
         if let skill {
             skill.name = trimmedName
         } else {
+            // Current skills default to completed; to-learn default to not started.
             let defaultStatus: SkillStatus = category == .current ? .completed : .notStarted
-            let newSkill = Skill(
-                name: trimmedName,
-                category: category,
-                status: defaultStatus
-            )
-            modelContext.insert(newSkill)
+            modelContext.insert(Skill(name: trimmedName, category: category, status: defaultStatus))
         }
 
         do {
@@ -105,7 +95,6 @@ struct SkillFormView: View {
 
 #Preview("Edit") {
     let skill = Skill(name: "Python", category: .current, status: .completed)
-
     return SkillFormView(category: .current, skill: skill)
         .modelContainer(for: Skill.self, inMemory: true)
 }

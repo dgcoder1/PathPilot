@@ -1,9 +1,11 @@
 //
 //  Certification.swift
-//  PathPilot
+//  PathPilot — Models/
 //
-//  A certification the user is planning, studying for, or has earned,
-//  e.g. "AWS Solutions Architect". Managed on the Certifications tab (Day 5).
+//  WHAT: SwiftData model for a certification the user is tracking.
+//  WHY:  Certs are the third tracker pillar — progress ring uses completed certs (30% weight).
+//  CONNECTS TO: CertificationsListView, CertificationFormView, StatusBadge, ProgressCalculator.
+//  EDIT WHEN: Adding cert provider links, exam dates, or study notes (V2).
 //
 
 import Foundation
@@ -14,8 +16,8 @@ final class Certification {
 
     var name: String
     var status: CertStatus
-    var targetDate: Date?
-    var completedDate: Date?
+    var targetDate: Date?      // Optional study target — set in form toggle
+    var completedDate: Date?   // Auto-set when status → .completed
 
     init(
         name: String = "",

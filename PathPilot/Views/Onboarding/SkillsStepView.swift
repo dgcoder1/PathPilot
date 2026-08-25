@@ -1,8 +1,11 @@
 //
 //  SkillsStepView.swift
-//  PathPilot
+//  PathPilot — Views/Onboarding/
 //
-//  Onboarding Step 3 — current skills and skills to learn (comma-separated).
+//  WHAT: Onboarding Step 3 — comma-separated current skills and skills to learn.
+//  WHY:  Seeds the Skills tab so users don't start from empty after onboarding.
+//  CONNECTS TO: OnboardingViewModel.currentSkills / .skillsToLearn → Skill rows on finish.
+//  EDIT WHEN: Replacing comma fields with chip UI (V2) or making skills required.
 //
 
 import SwiftUI

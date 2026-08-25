@@ -1,9 +1,11 @@
 //
 //  CareerCard.swift
-//  PathPilot
+//  PathPilot — Components/
 //
-//  Reusable card for displaying career goal and similar summary content.
-//  Used on the dashboard (Day 3).
+//  WHAT: Reusable card showing a label + value (e.g. "Your Goal: Cloud Security Analyst").
+//  WHY:  Consistent card styling across dashboard — change once, updates everywhere.
+//  CONNECTS TO: DashboardView (goal display).
+//  EDIT WHEN: Reusing for other summary cards or changing card visual style.
 //
 
 import SwiftUI

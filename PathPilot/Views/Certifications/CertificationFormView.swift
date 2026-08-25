@@ -1,8 +1,13 @@
 //
 //  CertificationFormView.swift
-//  PathPilot
+//  PathPilot — Views/Certifications/
 //
-//  Shared sheet for adding and editing certifications (Day 5).
+//  WHAT: Modal sheet for adding or editing a certification.
+//  WHY:  Captures cert name, status, optional target date; auto-sets completedDate.
+//  CONNECTS TO: CertificationsListView presents this as a .sheet.
+//  EDIT WHEN: Adding fields or changing completion-date logic.
+//
+//  REFERENCE: ApplicationFormView (Task 4) should mirror this structure.
 //
 
 import SwiftData
@@ -29,14 +34,8 @@ struct CertificationFormView: View {
     }
 
     private var isEditing: Bool { certification != nil }
-
-    private var trimmedName: String {
-        name.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var canSave: Bool {
-        !trimmedName.isEmpty
-    }
+    private var trimmedName: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var canSave: Bool { !trimmedName.isEmpty }
 
     var body: some View {
         NavigationStack {
@@ -58,11 +57,7 @@ struct CertificationFormView: View {
                     Toggle("Target date", isOn: $hasTargetDate.animation())
 
                     if hasTargetDate {
-                        DatePicker(
-                            "Target",
-                            selection: $targetDate,
-                            displayedComponents: .date
-                        )
+                        DatePicker("Target", selection: $targetDate, displayedComponents: .date)
                     }
                 } header: {
                     Text("Progress")
@@ -72,16 +67,10 @@ struct CertificationFormView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+                    Button("Cancel") { dismiss() }
                 }
-
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        save()
-                    }
-                    .disabled(!canSave)
+                    Button("Save") { save() }.disabled(!canSave)
                 }
             }
         }
@@ -89,12 +78,9 @@ struct CertificationFormView: View {
 
     private func statusTitle(for status: CertStatus) -> String {
         switch status {
-        case .planned:
-            "Planned"
-        case .inProgress:
-            "In Progress"
-        case .completed:
-            "Completed"
+        case .planned: "Planned"
+        case .inProgress: "In Progress"
+        case .completed: "Completed"
         }
     }
 
@@ -126,6 +112,7 @@ struct CertificationFormView: View {
         }
     }
 
+    /// Sets completedDate when status → Completed; clears it otherwise.
     private func applyCompletionDate(to certification: Certification) {
         if certification.status == .completed {
             if certification.completedDate == nil {
@@ -150,7 +137,6 @@ struct CertificationFormView: View {
         status: .inProgress,
         targetDate: .now
     )
-
     return CertificationFormView(certification: certification)
         .modelContainer(for: Certification.self, inMemory: true)
 }

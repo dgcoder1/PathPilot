@@ -1,9 +1,11 @@
 //
 //  JobApplication.swift
-//  PathPilot
+//  PathPilot — Models/
 //
-//  A job the user is tracking through the application pipeline,
-//  e.g. "Acme Corp — Cloud Security Analyst". Managed on the Applications tab (Day 6).
+//  WHAT: SwiftData model for a job the user is tracking through the hiring pipeline.
+//  WHY:  Applications complete the career pipeline — progress ring uses submitted count (10%).
+//  CONNECTS TO: ApplicationsListView, ApplicationFormView (Task 4+), StatusBadge, ProgressCalculator.
+//  EDIT WHEN: Adding interview dates, contacts, or grouped list sections (V2).
 //
 
 import Foundation
@@ -15,8 +17,8 @@ final class JobApplication {
     var company: String
     var roleTitle: String
     var status: ApplicationStatus
-    var appliedDate: Date?
-    var notes: String?
+    var appliedDate: Date?   // Set when status moves to Applied or beyond (Task 6)
+    var notes: String?       // Optional — can skip in V1 if behind schedule
 
     init(
         company: String = "",

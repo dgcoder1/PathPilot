@@ -1,9 +1,12 @@
 //
 //  OnboardingViewModel.swift
-//  PathPilot
+//  PathPilot — ViewModels/
 //
-//  Holds onboarding form state, step navigation, and validation.
-//  Views bind to this @Observable type; persistence runs on completeOnboarding.
+//  WHAT: Manages onboarding wizard state — form fields, step navigation, validation, save.
+//  WHY:  Five step views share one ViewModel; keeps navigation logic out of each step view.
+//        @Observable lets step views use @Bindable for two-way field binding.
+//  CONNECTS TO: OnboardingContainerView + 5 step views; writes to SwiftData on finish.
+//  EDIT WHEN: Adding/removing steps, changing validation rules, or onboarding fields.
 //
 
 import Foundation
@@ -18,7 +21,6 @@ final class OnboardingViewModel {
     /// Current wizard step (0 = Welcome … 4 = Milestone).
     var currentStep = 0
 
-    /// Total number of steps in the onboarding flow.
     static let totalSteps = 5
 
     // MARK: - Form fields
@@ -26,15 +28,14 @@ final class OnboardingViewModel {
     var name = ""
     var currentBackground = ""
     var targetRole = ""
-    /// Comma-separated list, e.g. "Python, SQL"
+    /// Comma-separated, e.g. "Python, SQL" — parsed into Skill rows on finish.
     var currentSkills = ""
-    /// Comma-separated list, e.g. "AWS, Terraform"
     var skillsToLearn = ""
     var firstMilestone = ""
 
     // MARK: - Navigation
 
-    /// Whether the user can advance from the current step.
+    /// Gates the Next/Finish button — each step has different required fields.
     var canProceed: Bool {
         switch currentStep {
         case 0:
@@ -45,8 +46,7 @@ final class OnboardingViewModel {
         case 2:
             return !targetRole.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         case 3:
-            // Skills are optional in V1 — user can skip and add them later.
-            return true
+            return true   // Skills optional in V1
         case 4:
             return !firstMilestone.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         default:
@@ -54,13 +54,8 @@ final class OnboardingViewModel {
         }
     }
 
-    var canGoBack: Bool {
-        currentStep > 0
-    }
-
-    var isLastStep: Bool {
-        currentStep == Self.totalSteps - 1
-    }
+    var canGoBack: Bool { currentStep > 0 }
+    var isLastStep: Bool { currentStep == Self.totalSteps - 1 }
 
     func nextStep() {
         guard canProceed, currentStep < Self.totalSteps - 1 else { return }
@@ -74,48 +69,38 @@ final class OnboardingViewModel {
 
     // MARK: - Persistence
 
-    /// Saves onboarding answers to SwiftData. Call from the finish button;
-    /// the view layer sets `@AppStorage("hasCompletedOnboarding")` after success.
+    /// Inserts UserProfile, CareerGoal, Skills, and Milestone into SwiftData.
+    /// OnboardingContainerView sets @AppStorage after this succeeds.
     func completeOnboarding(context: ModelContext) throws {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedBackground = currentBackground.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedRole = targetRole.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedMilestone = firstMilestone.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let profile = UserProfile(
+        context.insert(UserProfile(
             name: trimmedName,
             currentBackground: trimmedBackground,
             hasCompletedOnboarding: true
-        )
-        context.insert(profile)
+        ))
 
-        let goal = CareerGoal(targetRole: trimmedRole)
-        context.insert(goal)
+        context.insert(CareerGoal(targetRole: trimmedRole))
 
-        for skill in parseSkills(
-            from: currentSkills,
-            category: .current,
-            status: .completed
-        ) {
+        for skill in parseSkills(from: currentSkills, category: .current, status: .completed) {
             context.insert(skill)
         }
 
-        for skill in parseSkills(
-            from: skillsToLearn,
-            category: .toLearn,
-            status: .notStarted
-        ) {
+        for skill in parseSkills(from: skillsToLearn, category: .toLearn, status: .notStarted) {
             context.insert(skill)
         }
 
-        let milestone = Milestone(title: trimmedMilestone, sortOrder: 0)
-        context.insert(milestone)
+        context.insert(Milestone(title: trimmedMilestone, sortOrder: 0))
 
         try context.save()
     }
 
     // MARK: - Helpers
 
+    /// Splits "Python, SQL, AWS" into individual Skill objects.
     private func parseSkills(
         from text: String,
         category: SkillCategory,

@@ -1,9 +1,11 @@
 //
 //  Skill.swift
-//  PathPilot
+//  PathPilot — Models/
 //
-//  A skill the user already has or wants to learn, e.g. "Python" or "AWS".
-//  Created during onboarding (Day 2) and managed on the Skills tab (Day 4).
+//  WHAT: SwiftData model for a single skill (current or to-learn).
+//  WHY:  Skills are a core tracker — progress ring uses completed skills (40% weight).
+//  CONNECTS TO: SkillsListView, SkillFormView, OnboardingViewModel, ProgressCalculator.
+//  EDIT WHEN: Adding skill notes, categories, or detail view (V2).
 //
 
 import Foundation
@@ -13,8 +15,8 @@ import SwiftData
 final class Skill {
 
     var name: String
-    var category: SkillCategory
-    var status: SkillStatus
+    var category: SkillCategory   // .current or .toLearn — drives segmented list filter
+    var status: SkillStatus       // Tappable pill on list rows cycles this
     var createdAt: Date
 
     init(

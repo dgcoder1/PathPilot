@@ -1,8 +1,11 @@
 //
 //  MilestoneStepView.swift
-//  PathPilot
+//  PathPilot — Views/Onboarding/
 //
-//  Onboarding Step 4 — first career milestone on the roadmap.
+//  WHAT: Onboarding Step 4 (final form step) — first career milestone.
+//  WHY:  Seeds the dashboard checklist so progress ring has something to track.
+//  CONNECTS TO: OnboardingViewModel.firstMilestone → Milestone model on finish.
+//  EDIT WHEN: Allowing multiple milestones during onboarding (V2).
 //
 
 import SwiftUI

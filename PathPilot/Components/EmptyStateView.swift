@@ -1,9 +1,11 @@
 //
 //  EmptyStateView.swift
-//  PathPilot
+//  PathPilot — Components/
 //
-//  Reusable empty state with icon, copy, and an optional action button.
-//  Used when lists have no items (Skills, Certs, Applications — Day 4+).
+//  WHAT: Friendly placeholder when a list has zero items.
+//  WHY:  Empty lists feel broken without guidance — this explains what to do next.
+//  CONNECTS TO: SkillsListView, CertificationsListView, ApplicationsListView.
+//  EDIT WHEN: Changing empty-state copy or adding new list screens.
 //
 
 import SwiftUI
@@ -46,6 +48,7 @@ struct EmptyStateView: View {
                     .multilineTextAlignment(.center)
             }
 
+            // Optional CTA — e.g. "Add Skill" opens the add sheet.
             if let buttonTitle, let buttonAction {
                 Button(buttonTitle, action: buttonAction)
                     .buttonStyle(.borderedProminent)

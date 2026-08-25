@@ -1,8 +1,11 @@
 //
 //  BackgroundStepView.swift
-//  PathPilot
+//  PathPilot — Views/Onboarding/
 //
-//  Onboarding Step 1 — name and current professional background.
+//  WHAT: Onboarding Step 1 — collects name and current professional background.
+//  WHY:  Personalizes dashboard greeting and profile tab.
+//  CONNECTS TO: OnboardingViewModel.name, .currentBackground via @Bindable.
+//  EDIT WHEN: Adding fields (location, years of experience) or changing validation.
 //
 
 import SwiftUI

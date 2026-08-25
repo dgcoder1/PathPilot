@@ -1,9 +1,11 @@
 //
 //  CareerGoal.swift
-//  PathPilot
+//  PathPilot — Models/
 //
-//  The user's target role, e.g. "Cloud Security Analyst".
-//  V1 supports one active goal; multiple goals are deferred to V2.
+//  WHAT: SwiftData model for the user's target role (e.g. "Cloud Security Analyst").
+//  WHY:  The career goal drives the dashboard hero card and progress context.
+//  CONNECTS TO: OnboardingViewModel, DashboardView, ProfileView.
+//  EDIT WHEN: Supporting multiple goals (V2) — add isActive filtering logic.
 //
 
 import Foundation
@@ -14,6 +16,7 @@ final class CareerGoal {
 
     var targetRole: String
     var createdAt: Date
+    /// V1 uses one active goal; isActive flags which goal to show if multiples exist in V2.
     var isActive: Bool
 
     init(

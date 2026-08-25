@@ -1,9 +1,11 @@
 //
 //  UserProfile.swift
-//  PathPilot
+//  PathPilot — Models/
 //
-//  Stores who the user is and whether they finished onboarding.
-//  Created during onboarding (Day 2) and read by the dashboard and profile tabs.
+//  WHAT: SwiftData model for the user's identity (name, background).
+//  WHY:  Persists who the user is after onboarding — shown on Dashboard and Profile.
+//  CONNECTS TO: OnboardingViewModel (creates on finish), DashboardView, ProfileView.
+//  EDIT WHEN: Adding profile fields (e.g. email in V2).
 //
 
 import Foundation

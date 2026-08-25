@@ -1,9 +1,12 @@
 //
 //  DashboardViewModel.swift
-//  PathPilot
+//  PathPilot — ViewModels/
 //
-//  Prepares dashboard display data from SwiftData models.
-//  DashboardView fetches with @Query and calls update(...); this type owns computed UI values.
+//  WHAT: Prepares display-ready data for the dashboard from raw SwiftData models.
+//  WHY:  MVVM keeps DashboardView thin — view fetches with @Query, VM formats for UI.
+//        Uses @Observable (iOS 17+) instead of ObservableObject/@Published.
+//  CONNECTS TO: DashboardView calls update(...) when @Query data changes.
+//  EDIT WHEN: Adding new dashboard sections or wiring live application count (Task 9).
 //
 
 import Foundation
@@ -38,6 +41,7 @@ final class DashboardViewModel {
 
     // MARK: - Progress
 
+    /// 0.0–1.0 fraction fed to ProgressRingView.
     var progress: Double {
         ProgressCalculator.overallProgress(
             skills: skills,
@@ -59,15 +63,14 @@ final class DashboardViewModel {
     // MARK: - Quick stats
 
     var skillsCount: Int { skills.count }
-
     var certificationsCount: Int { certifications.count }
 
-    /// Job application model arrives on Day 6 — count stays 0 until then.
+    /// TODO (Task 9): Wire to live @Query JobApplication count — currently hardcoded 0.
     var applicationsCount: Int { 0 }
 
     // MARK: - Sync
 
-    /// Call when @Query results change so computed properties stay in sync with SwiftData.
+    /// DashboardView calls this inside .task(id: syncToken) whenever @Query results change.
     func update(
         profile: UserProfile?,
         goal: CareerGoal?,

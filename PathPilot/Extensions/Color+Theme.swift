@@ -1,10 +1,12 @@
 //
 //  Color+Theme.swift
-//  PathPilot
+//  PathPilot — Extensions/
 //
-//  Central place for PathPilot brand and semantic colors.
-//  Use these instead of hard-coded colors so the app stays consistent
-//  and adapts automatically to Light/Dark Mode where noted.
+//  WHAT: Brand and semantic color definitions for the whole app.
+//  WHY:  One source of truth for colors — change here, updates everywhere.
+//        Semantic colors (pathPilotBackground/Card) auto-adapt to Dark Mode.
+//  CONNECTS TO: Every view that uses .pathPilotPrimary, .pathPilotAccent, etc.
+//  EDIT WHEN: Rebranding or tweaking Light/Dark Mode appearance.
 //
 
 import SwiftUI
@@ -12,11 +14,11 @@ import SwiftUI
 extension Color {
 
     /// Deep blue — primary brand color (trust, professionalism).
-    /// Hex: #1B3A5C
+    /// Hex: #1B3A5C — use for headings, titles, primary text accents.
     static let pathPilotPrimary = Color(red: 0.106, green: 0.227, blue: 0.361)
 
-    /// Teal/green — accent for progress, CTAs, and tab selection.
-    /// Hex: #2ECC71
+    /// Teal/green — accent for progress, CTAs, and selected tab bar items.
+    /// Hex: #2ECC71 — use for buttons, progress ring, completed states.
     static let pathPilotAccent = Color(red: 0.180, green: 0.800, blue: 0.443)
 
     /// Main screen background. Uses Apple's grouped background so it
@@ -42,7 +44,7 @@ extension Color {
     .background(Color.pathPilotBackground)
 }
 
-/// Small helper used only in the preview above — not part of the app UI yet.
+/// Preview-only helper — not used in the live app.
 private struct ThemeColorSwatch: View {
     let name: String
     let color: Color
