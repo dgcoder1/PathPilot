@@ -2,7 +2,7 @@
 //  ApplicationsListView.swift
 //  PathPilot — Views/Applications/
 //
-//  WHAT: Applications tab — list of job applications with status badges and add sheet.
+//  WHAT: Applications tab — list with status badges, add sheet, and swipe-to-delete.
 //  WHY:  Tracks hiring pipeline (Saved → Applied → Interview → Offer / Rejected).
 //  CONNECTS TO: ApplicationFormView, JobApplication model, StatusBadge, EmptyStateView.
 //  EDIT WHEN: Adding tap-to-edit (Task 6) or empty-state CTA (Task 7).
