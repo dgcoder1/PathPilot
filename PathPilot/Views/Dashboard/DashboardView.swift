@@ -5,7 +5,7 @@
 //  WHAT: Hero screen — welcome message, goal card, progress ring, milestones, quick stats.
 //  WHY:  Central hub tying together all trackers; user sees overall career progress here.
 //  CONNECTS TO: DashboardViewModel, ProgressRingView, CareerCard, ProgressCalculator.
-//  EDIT WHEN: Adding dashboard widgets, wiring live application count (Task 9).
+//  EDIT WHEN: Adding dashboard widgets or changing which queries feed the ring/stats.
 //
 //  PATTERN: @Query fetches live SwiftData → syncToken triggers viewModel.update(...).
 //
@@ -21,6 +21,7 @@ struct DashboardView: View {
     @Query private var milestones: [Milestone]
     @Query private var skills: [Skill]
     @Query private var certifications: [Certification]
+    @Query private var applications: [JobApplication]
 
     @State private var viewModel = DashboardViewModel()
 
@@ -111,11 +112,13 @@ struct DashboardView: View {
         let milestoneCompleted = milestones.filter(\.isCompleted).count
         let skillsCompleted = skills.filter { $0.status == .completed }.count
         let certsCompleted = certifications.filter { $0.status == .completed }.count
+        let applicationsSubmitted = applications.filter { $0.status != .saved }.count
         return """
         \(profiles.first?.name ?? "")|\(activeGoal?.targetRole ?? "")|\
         \(milestones.count)|\(milestoneCompleted)|\
         \(skills.count)|\(skillsCompleted)|\
-        \(certifications.count)|\(certsCompleted)
+        \(certifications.count)|\(certsCompleted)|\
+        \(applications.count)|\(applicationsSubmitted)
         """
     }
 
@@ -129,7 +132,8 @@ struct DashboardView: View {
             goal: activeGoal,
             milestones: milestones,
             skills: skills,
-            certifications: certifications
+            certifications: certifications,
+            applications: applications
         )
     }
 }
@@ -223,7 +227,8 @@ private struct DashboardPreviewContainer: View {
 
     private var previewContainer: ModelContainer {
         let container = try! ModelContainer(
-            for: UserProfile.self, CareerGoal.self, Milestone.self, Skill.self, Certification.self,
+            for: UserProfile.self, CareerGoal.self, Milestone.self, Skill.self,
+            Certification.self, JobApplication.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let context = container.mainContext
@@ -235,6 +240,8 @@ private struct DashboardPreviewContainer: View {
         context.insert(Skill(name: "AWS", category: .toLearn, status: .notStarted))
         context.insert(Certification(name: "AWS Solutions Architect", status: .inProgress))
         context.insert(Certification(name: "CompTIA Security+", status: .completed))
+        context.insert(JobApplication(company: "Acme Corp", roleTitle: "Cloud Security Analyst", status: .applied, appliedDate: .now))
+        context.insert(JobApplication(company: "Globex", roleTitle: "SOC Analyst", status: .saved))
 
         return container
     }

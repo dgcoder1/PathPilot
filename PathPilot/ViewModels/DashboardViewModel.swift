@@ -6,7 +6,7 @@
 //  WHY:  MVVM keeps DashboardView thin — view fetches with @Query, VM formats for UI.
 //        Uses @Observable (iOS 17+) instead of ObservableObject/@Published.
 //  CONNECTS TO: DashboardView calls update(...) when @Query data changes.
-//  EDIT WHEN: Adding new dashboard sections or wiring live application count (Task 9).
+//  EDIT WHEN: Adding new dashboard sections or changing how counts/progress are derived.
 //
 
 import Foundation
@@ -22,6 +22,7 @@ final class DashboardViewModel {
     private(set) var milestones: [Milestone] = []
     private(set) var skills: [Skill] = []
     private(set) var certifications: [Certification] = []
+    private(set) var applications: [JobApplication] = []
 
     // MARK: - Display copy
 
@@ -47,7 +48,7 @@ final class DashboardViewModel {
             skills: skills,
             certifications: certifications,
             milestones: milestones,
-            applicationsSubmitted: applicationsCount
+            applicationsSubmitted: applicationsSubmittedCount
         )
     }
 
@@ -64,9 +65,12 @@ final class DashboardViewModel {
 
     var skillsCount: Int { skills.count }
     var certificationsCount: Int { certifications.count }
+    var applicationsCount: Int { applications.count }
 
-    /// TODO (Task 9): Wire to live @Query JobApplication count — currently hardcoded 0.
-    var applicationsCount: Int { 0 }
+    /// Applied / Interview / Offer / Rejected — Saved jobs don't count toward the 10% slice.
+    var applicationsSubmittedCount: Int {
+        applications.filter { $0.status != .saved }.count
+    }
 
     // MARK: - Sync
 
@@ -76,12 +80,14 @@ final class DashboardViewModel {
         goal: CareerGoal?,
         milestones: [Milestone],
         skills: [Skill],
-        certifications: [Certification]
+        certifications: [Certification],
+        applications: [JobApplication]
     ) {
         self.profile = profile
         self.goal = goal
         self.milestones = milestones
         self.skills = skills
         self.certifications = certifications
+        self.applications = applications
     }
 }
