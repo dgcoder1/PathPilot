@@ -17,8 +17,8 @@ final class JobApplication {
     var company: String
     var roleTitle: String
     var status: ApplicationStatus
-    var appliedDate: Date?   // Set when status moves to Applied or beyond (Task 6)
-    var notes: String?       // Optional — can skip in V1 if behind schedule
+    var appliedDate: Date?   // Set when status is Applied or later; cleared if back to Saved
+    var notes: String?       // Optional — skip in V1 if behind schedule
 
     init(
         company: String = "",

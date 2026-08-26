@@ -2,12 +2,12 @@
 //  ApplicationsListView.swift
 //  PathPilot — Views/Applications/
 //
-//  WHAT: Applications tab — list with status badges, add sheet, and swipe-to-delete.
+//  WHAT: Applications tab — list with status badges, add/edit sheets, and swipe-to-delete.
 //  WHY:  Tracks hiring pipeline (Saved → Applied → Interview → Offer / Rejected).
 //  CONNECTS TO: ApplicationFormView, JobApplication model, StatusBadge, EmptyStateView.
-//  EDIT WHEN: Adding tap-to-edit (Task 6) or empty-state CTA (Task 7).
+//  EDIT WHEN: Adding empty-state CTA (Task 7) or grouped sections (V2).
 //
-//  STATUS: Task 5 — add + swipe-to-delete persist. Edit/empty CTA still pending.
+//  STATUS: Task 6 — add/edit/delete persist. Empty-state Add button still pending.
 //
 
 import SwiftData
@@ -19,6 +19,7 @@ struct ApplicationsListView: View {
     @Query private var applications: [JobApplication]
 
     @State private var isShowingAddSheet = false
+    @State private var editingApplication: JobApplication?
 
     /// @Query can't sort enums in pipeline order — we sort in-memory instead.
     private var sortedApplications: [JobApplication] {
@@ -47,7 +48,9 @@ struct ApplicationsListView: View {
                 } else {
                     List {
                         ForEach(sortedApplications) { application in
-                            ApplicationRowView(application: application)
+                            ApplicationRowView(application: application) {
+                                editingApplication = application
+                            }
                         }
                         .onDelete(perform: deleteApplications)
                     }
@@ -67,6 +70,10 @@ struct ApplicationsListView: View {
             }
             .sheet(isPresented: $isShowingAddSheet) {
                 ApplicationFormView()
+                    .environment(\.modelContext, modelContext)
+            }
+            .sheet(item: $editingApplication) { application in
+                ApplicationFormView(application: application)
                     .environment(\.modelContext, modelContext)
             }
         }
@@ -93,29 +100,33 @@ struct ApplicationsListView: View {
     }
 }
 
-// MARK: - Row
+// MARK: - Row (tap company/role = edit; badge is display-only)
 
 private struct ApplicationRowView: View {
     let application: JobApplication
+    var onEdit: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(application.company)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(
-                        application.status == .rejected ? .secondary : Color.pathPilotPrimary
-                    )
+            Button { onEdit() } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(application.company)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(
+                            application.status == .rejected ? .secondary : Color.pathPilotPrimary
+                        )
 
-                Text(application.roleTitle)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    Text(application.roleTitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens application editor")
 
             StatusBadge(applicationStatus: application.status)
         }
-        .accessibilityElement(children: .combine)
     }
 }
 

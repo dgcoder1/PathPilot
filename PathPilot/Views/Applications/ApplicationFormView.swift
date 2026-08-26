@@ -3,9 +3,9 @@
 //  PathPilot — Views/Applications/
 //
 //  WHAT: Modal sheet for adding or editing a job application.
-//  WHY:  Captures company, role title, and pipeline status in one shared form.
-//  CONNECTS TO: ApplicationsListView presents this as a .sheet (add in Task 4; edit in Task 6).
-//  EDIT WHEN: Adding appliedDate, notes, or changing default-status logic.
+//  WHY:  Captures company, role title, pipeline status; sets appliedDate once Applied+.
+//  CONNECTS TO: ApplicationsListView presents this as a .sheet (nil = add, non-nil = edit).
+//  EDIT WHEN: Adding notes or changing applied-date default logic.
 //
 
 import SwiftData
@@ -22,12 +22,14 @@ struct ApplicationFormView: View {
     @State private var company: String
     @State private var roleTitle: String
     @State private var status: ApplicationStatus
+    @State private var appliedDate: Date
 
     init(application: JobApplication? = nil) {
         self.application = application
         _company = State(initialValue: application?.company ?? "")
         _roleTitle = State(initialValue: application?.roleTitle ?? "")
         _status = State(initialValue: application?.status ?? .saved)
+        _appliedDate = State(initialValue: application?.appliedDate ?? .now)
     }
 
     private var isEditing: Bool { application != nil }
@@ -63,8 +65,18 @@ struct ApplicationFormView: View {
                             Text(statusTitle(for: option)).tag(option)
                         }
                     }
+
+                    if status != .saved {
+                        DatePicker("Applied", selection: $appliedDate, displayedComponents: .date)
+                    }
                 } header: {
                     Text("Pipeline")
+                }
+            }
+            .onChange(of: status) { oldStatus, newStatus in
+                // First move into Applied+ defaults the date to today; later moves keep it.
+                if oldStatus == .saved && newStatus != .saved && application?.appliedDate == nil {
+                    appliedDate = .now
                 }
             }
             .navigationTitle(isEditing ? "Edit Application" : "Add Application")
@@ -97,12 +109,14 @@ struct ApplicationFormView: View {
             application.company = trimmedCompany
             application.roleTitle = trimmedRoleTitle
             application.status = status
+            applyAppliedDate(to: application)
         } else {
             let newApplication = JobApplication(
                 company: trimmedCompany,
                 roleTitle: trimmedRoleTitle,
                 status: status
             )
+            applyAppliedDate(to: newApplication)
             modelContext.insert(newApplication)
         }
 
@@ -111,6 +125,15 @@ struct ApplicationFormView: View {
             dismiss()
         } catch {
             assertionFailure("Application save failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Saved → no date. Applied+ → keep an existing date, otherwise use the picker (defaults to today).
+    private func applyAppliedDate(to application: JobApplication) {
+        if status == .saved {
+            application.appliedDate = nil
+        } else {
+            application.appliedDate = appliedDate
         }
     }
 }
