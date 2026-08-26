@@ -2,12 +2,12 @@
 //  ApplicationsListView.swift
 //  PathPilot — Views/Applications/
 //
-//  WHAT: Applications tab — list with status badges, add/edit sheets, and swipe-to-delete.
+//  WHAT: Applications tab — list with status badges, add/edit/delete, and empty-state CTA.
 //  WHY:  Tracks hiring pipeline (Saved → Applied → Interview → Offer / Rejected).
 //  CONNECTS TO: ApplicationFormView, JobApplication model, StatusBadge, EmptyStateView.
-//  EDIT WHEN: Adding empty-state CTA (Task 7) or grouped sections (V2).
+//  EDIT WHEN: Changing list sort, row layout, or grouped sections (V2).
 //
-//  STATUS: Task 6 — add/edit/delete persist. Empty-state Add button still pending.
+//  STATUS: Task 7 — full list CRUD + empty-state Add button. Profile/dashboard still pending.
 //
 
 import SwiftData
@@ -83,7 +83,9 @@ struct ApplicationsListView: View {
         EmptyStateView(
             systemImage: "briefcase",
             title: "No applications yet",
-            message: "When you start applying, track your pipeline here."
+            message: "When you start applying, track your pipeline here.",
+            buttonTitle: "Add Application",
+            buttonAction: { isShowingAddSheet = true }
         )
     }
 
