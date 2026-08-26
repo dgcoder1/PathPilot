@@ -18,8 +18,7 @@ struct ApplicationsListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var applications: [JobApplication]
 
-    @State private var isShowingAddSheet = false
-    @State private var editingApplication: JobApplication?
+    @State private var formPresentation: ApplicationFormPresentation?
 
     /// @Query can't sort enums in pipeline order — we sort in-memory instead.
     private var sortedApplications: [JobApplication] {
@@ -48,9 +47,13 @@ struct ApplicationsListView: View {
                 } else {
                     List {
                         ForEach(sortedApplications) { application in
-                            ApplicationRowView(application: application) {
-                                editingApplication = application
+                            Button {
+                                formPresentation = .edit(application)
+                            } label: {
+                                ApplicationRowView(application: application)
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityHint("Opens application editor")
                         }
                         .onDelete(perform: deleteApplications)
                     }
@@ -62,18 +65,15 @@ struct ApplicationsListView: View {
             .navigationTitle("Applications")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button { isShowingAddSheet = true } label: {
+                    Button { formPresentation = .add } label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add application")
                 }
             }
-            .sheet(isPresented: $isShowingAddSheet) {
-                ApplicationFormView()
-                    .environment(\.modelContext, modelContext)
-            }
-            .sheet(item: $editingApplication) { application in
-                ApplicationFormView(application: application)
+            // One sheet for add and edit — two .sheet modifiers can swallow the first tap.
+            .sheet(item: $formPresentation) { presentation in
+                ApplicationFormView(application: presentation.application)
                     .environment(\.modelContext, modelContext)
             }
         }
@@ -85,7 +85,7 @@ struct ApplicationsListView: View {
             title: "No applications yet",
             message: "When you start applying, track your pipeline here.",
             buttonTitle: "Add Application",
-            buttonAction: { isShowingAddSheet = true }
+            buttonAction: { formPresentation = .add }
         )
     }
 
@@ -102,33 +102,42 @@ struct ApplicationsListView: View {
     }
 }
 
-// MARK: - Row (tap company/role = edit; badge is display-only)
+// MARK: - Sheet destination (add = nil application, edit = existing)
+
+private struct ApplicationFormPresentation: Identifiable {
+    let id: String
+    let application: JobApplication?
+
+    static var add: Self { Self(id: "add", application: nil) }
+
+    static func edit(_ application: JobApplication) -> Self {
+        Self(id: String(describing: application.persistentModelID), application: application)
+    }
+}
+
+// MARK: - Row (whole row is tappable in the List; badge is display-only)
 
 private struct ApplicationRowView: View {
     let application: JobApplication
-    var onEdit: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
-            Button { onEdit() } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(application.company)
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(
-                            application.status == .rejected ? .secondary : Color.pathPilotPrimary
-                        )
+            VStack(alignment: .leading, spacing: 4) {
+                Text(application.company)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(
+                        application.status == .rejected ? .secondary : Color.pathPilotPrimary
+                    )
 
-                    Text(application.roleTitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(application.roleTitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
-            .accessibilityHint("Opens application editor")
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             StatusBadge(applicationStatus: application.status)
         }
+        .contentShape(Rectangle())
     }
 }
 
