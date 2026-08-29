@@ -23,7 +23,7 @@ struct BackgroundStepView: View {
             VStack(spacing: 16) {
                 OnboardingTextField(
                     title: "Your name",
-                    placeholder: "Alex",
+                    placeholder: "Enter your name",
                     text: $viewModel.name
                 )
                 .textContentType(.name)
