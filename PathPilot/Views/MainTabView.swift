@@ -24,29 +24,32 @@ struct MainTabView: View {
     @State private var selectedTab: MainTab = .dashboard
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            DashboardView(selectedTab: $selectedTab)
-                .tag(MainTab.dashboard)
-                .toolbar(.hidden, for: .tabBar)
+        // VStack (not overlay / safeAreaInset) so tab pages shrink above the bar.
+        // Overlaying the dock on TabView was covering Dashboard "Recently Updated".
+        VStack(spacing: 0) {
+            TabView(selection: $selectedTab) {
+                DashboardView(selectedTab: $selectedTab)
+                    .tag(MainTab.dashboard)
+                    .toolbar(.hidden, for: .tabBar)
 
-            SkillsListView()
-                .tag(MainTab.skills)
-                .toolbar(.hidden, for: .tabBar)
+                SkillsListView()
+                    .tag(MainTab.skills)
+                    .toolbar(.hidden, for: .tabBar)
 
-            CertificationsListView()
-                .tag(MainTab.certifications)
-                .toolbar(.hidden, for: .tabBar)
+                CertificationsListView()
+                    .tag(MainTab.certifications)
+                    .toolbar(.hidden, for: .tabBar)
 
-            ApplicationsListView()
-                .tag(MainTab.applications)
-                .toolbar(.hidden, for: .tabBar)
+                ApplicationsListView()
+                    .tag(MainTab.applications)
+                    .toolbar(.hidden, for: .tabBar)
 
-            ProfileView()
-                .tag(MainTab.profile)
-                .toolbar(.hidden, for: .tabBar)
-        }
-        .tint(.pathPilotPrimary)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+                ProfileView()
+                    .tag(MainTab.profile)
+                    .toolbar(.hidden, for: .tabBar)
+            }
+            .tint(.pathPilotPrimary)
+
             PathPilotTabBar(selectedTab: $selectedTab)
         }
     }
@@ -66,13 +69,16 @@ private struct PathPilotTabBar: View {
             tabButton(.profile, title: "Profile", icon: "person", selectedIcon: "person.fill")
         }
         .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.bottom, 6)
         .padding(.horizontal, 8)
-        .background(Color.pathPilotCard)
+        .background {
+            Color.pathPilotCard
+                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: -2)
+                .ignoresSafeArea(edges: .bottom)
+        }
         .overlay(alignment: .top) {
             Divider()
         }
-        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: -2)
     }
 
     private func tabButton(

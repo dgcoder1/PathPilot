@@ -2,10 +2,10 @@
 //  ProfileView.swift
 //  PathPilot — Views/Profile/
 //
-//  WHAT: Profile tab — read-only name, background, target role, plus Reset Onboarding.
-//  WHY:  Lets the user confirm onboarding data; reset is a testing shortcut back to the wizard.
-//  CONNECTS TO: UserProfile + CareerGoal (@Query), RootView (@AppStorage gate).
-//  EDIT WHEN: Adding profile edit sheets (V2) or changing reset/wipe behavior.
+//  WHAT: Profile tab — name (editable), read-only background and goal, Reset Onboarding.
+//  WHY:  Lets the user confirm onboarding data and fix the display name without a full reset.
+//  CONNECTS TO: UserProfile + CareerGoal (@Query), RootView (@AppStorage gate), Dashboard greeting.
+//  EDIT WHEN: Adding background/goal edit sheets or changing reset/wipe behavior.
 //
 
 import SwiftData
@@ -20,6 +20,7 @@ struct ProfileView: View {
     @Query private var goals: [CareerGoal]
 
     @State private var isShowingResetAlert = false
+    @State private var isShowingNameEditor = false
 
     private var profile: UserProfile? { profiles.first }
     private var activeGoal: CareerGoal? { goals.first(where: \.isActive) ?? goals.first }
@@ -28,11 +29,27 @@ struct ProfileView: View {
         NavigationStack {
             List {
                 Section {
-                    detailRow(title: "Name", value: displayValue(profile?.name))
+                    Button {
+                        isShowingNameEditor = true
+                    } label: {
+                        HStack {
+                            detailRow(title: "Name", value: displayValue(profile?.name))
+                            Spacer(minLength: 8)
+                            Text("Edit")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Color.pathPilotAccent)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(profile == nil)
+                    .accessibilityHint("Opens name editor")
+
                     detailRow(title: "Background", value: displayValue(profile?.currentBackground))
                     detailRow(title: "Target role", value: displayValue(activeGoal?.targetRole))
                 } header: {
                     Text("About you")
+                } footer: {
+                    Text("Tap Edit to change the name shown on the dashboard.")
                 }
 
                 Section {
@@ -56,6 +73,12 @@ struct ProfileView: View {
             .scrollContentBackground(.hidden)
             .background(Color.pathPilotBackground)
             .navigationTitle("Profile")
+            .sheet(isPresented: $isShowingNameEditor) {
+                if let profile {
+                    NameEditView(profile: profile)
+                        .environment(\.modelContext, modelContext)
+                }
+            }
             .alert("Reset Onboarding?", isPresented: $isShowingResetAlert) {
                 Button("Reset", role: .destructive) { resetOnboarding() }
                 Button("Cancel", role: .cancel) {}
@@ -107,6 +130,66 @@ struct ProfileView: View {
         let items = try modelContext.fetch(FetchDescriptor<T>())
         for item in items {
             modelContext.delete(item)
+        }
+    }
+}
+
+// MARK: - Name editor (nil-safe: only presented when a profile exists)
+
+private struct NameEditView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    @Bindable var profile: UserProfile
+    @State private var name: String
+
+    init(profile: UserProfile) {
+        self.profile = profile
+        _name = State(initialValue: profile.name)
+    }
+
+    private var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var canSave: Bool { !trimmedName.isEmpty }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Your name", text: $name)
+                        .textContentType(.name)
+                        .textInputAutocapitalization(.words)
+                        .autocorrectionDisabled()
+                } header: {
+                    Text("Name")
+                } footer: {
+                    Text("This updates the dashboard greeting and profile.")
+                }
+            }
+            .navigationTitle("Edit Name")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") { save() }
+                        .disabled(!canSave)
+                }
+            }
+        }
+    }
+
+    private func save() {
+        guard canSave else { return }
+        profile.name = trimmedName
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            assertionFailure("Name save failed: \(error.localizedDescription)")
         }
     }
 }

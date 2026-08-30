@@ -46,9 +46,10 @@ struct DashboardView: View {
                 recentlyUpdatedSection
             }
             .padding()
-            .padding(.bottom, 32)
+            .padding(.bottom, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .contentMargins(.bottom, 8, for: .scrollContent)
         .background(Color.pathPilotBackground)
         .task(id: syncToken) {
             syncViewModel()
@@ -418,7 +419,7 @@ private struct DashboardPreviewContainer: View {
         )
         let context = container.mainContext
 
-        context.insert(UserProfile(name: "Jordan", currentBackground: "Psychology graduate"))
+        context.insert(UserProfile(name: "User1", currentBackground: "Psychology graduate"))
         context.insert(CareerGoal(targetRole: "Cloud Security Analyst"))
         context.insert(Milestone(title: "Complete AWS Cloud Practitioner", sortOrder: 0))
         context.insert(Skill(name: "Python", category: .current, status: .completed))
