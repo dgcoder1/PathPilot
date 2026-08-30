@@ -24,9 +24,9 @@ struct MilestoneStepView: View {
                 title: "Milestone",
                 placeholder: "Complete AWS Solutions Architect cert",
                 text: $viewModel.firstMilestone,
-                axis: .vertical
+                axis: .vertical,
+                focusOnAppear: true
             )
-            .autocorrectionDisabled()
         }
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

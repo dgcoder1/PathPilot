@@ -16,6 +16,8 @@ struct ProgressRingView: View {
     let progress: Double
     var lineWidth: CGFloat = 12
     var size: CGFloat = 140
+    /// Optional second line under the percent (e.g. "Overall Progress").
+    var centerSubtitle: String? = nil
 
     private var clampedProgress: Double {
         min(max(progress, 0), 1)
@@ -41,9 +43,19 @@ struct ProgressRingView: View {
                 )
                 .rotationEffect(.degrees(-90))
 
-            Text("\(Int(clampedProgress * 100))%")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(Color.pathPilotPrimary)
+            VStack(spacing: 2) {
+                Text("\(Int(clampedProgress * 100))%")
+                    .font(centerSubtitle == nil ? .title2.weight(.bold) : .title3.weight(.bold))
+                    .foregroundStyle(Color.pathPilotPrimary)
+
+                if let centerSubtitle {
+                    Text(centerSubtitle)
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: size * 0.55)
+                }
+            }
         }
         .frame(width: size, height: size)
     }

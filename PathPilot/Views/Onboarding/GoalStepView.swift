@@ -23,10 +23,10 @@ struct GoalStepView: View {
             OnboardingTextField(
                 title: "Target role",
                 placeholder: "Cloud Security Analyst",
-                text: $viewModel.targetRole
+                text: $viewModel.targetRole,
+                textContentType: .jobTitle,
+                focusOnAppear: true
             )
-            .textContentType(.jobTitle)
-            .autocorrectionDisabled()
         }
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

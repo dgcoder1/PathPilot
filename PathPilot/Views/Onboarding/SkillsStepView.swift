@@ -25,9 +25,9 @@ struct SkillsStepView: View {
                     title: "Current skills",
                     placeholder: "Python, SQL, Communication",
                     text: $viewModel.currentSkills,
-                    axis: .vertical
+                    axis: .vertical,
+                    focusOnAppear: true
                 )
-                .autocorrectionDisabled()
 
                 OnboardingTextField(
                     title: "Skills to learn",
@@ -35,7 +35,6 @@ struct SkillsStepView: View {
                     text: $viewModel.skillsToLearn,
                     axis: .vertical
                 )
-                .autocorrectionDisabled()
             }
         }
         .padding(.horizontal, 24)

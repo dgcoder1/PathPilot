@@ -5,7 +5,7 @@
 //  WHAT: Shell for the 5-step onboarding wizard — progress bar, steps, navigation.
 //  WHY:  One container owns step switching and finish logic; step views stay simple.
 //  CONNECTS TO: OnboardingViewModel, 5 step views, RootView (shown when onboarding incomplete).
-//  EDIT WHEN: Adding/removing steps or changing navigation button behavior.
+//  EDIT WHEN: Adding/removing steps, changing navigation, or onboarding field focus.
 //
 
 import SwiftData
@@ -29,7 +29,6 @@ struct OnboardingContainerView: View {
 
             stepContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .animation(.easeInOut, value: viewModel.currentStep)
 
             navigationBar
                 .padding(.horizontal, 24)
@@ -70,6 +69,7 @@ struct OnboardingContainerView: View {
                 total: Double(OnboardingViewModel.totalSteps)
             )
             .tint(.pathPilotAccent)
+            .animation(.easeInOut, value: viewModel.currentStep)
         }
     }
 
@@ -144,17 +144,38 @@ struct OnboardingTextField: View {
     let placeholder: String
     @Binding var text: String
     var axis: Axis = .horizontal
+    var textContentType: UITextContentType?
+    /// Become first responder when the step appears — avoids multi-tap after a transition.
+    var focusOnAppear: Bool = false
+
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(Color.pathPilotPrimary)
+                .onTapGesture { isFocused = true }
 
             TextField(placeholder, text: $text, axis: axis)
+                .focused($isFocused)
+                .textContentType(textContentType)
+                .textInputAutocapitalization(.words)
+                .autocorrectionDisabled()
                 .padding(12)
                 .background(Color.pathPilotCard)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                // Padding + clipShape shrink the default hit box; this matches the visible card.
+                .contentShape(RoundedRectangle(cornerRadius: 12))
+        }
+        // Implicit step animation on a parent used to eat the first tap. Keep fields still.
+        .transaction { $0.animation = nil }
+        .onAppear {
+            guard focusOnAppear else { return }
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(150))
+                isFocused = true
+            }
         }
     }
 }

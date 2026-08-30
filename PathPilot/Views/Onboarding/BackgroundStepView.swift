@@ -5,7 +5,7 @@
 //  WHAT: Onboarding Step 1 — collects name and current professional background.
 //  WHY:  Personalizes dashboard greeting and profile tab.
 //  CONNECTS TO: OnboardingViewModel.name, .currentBackground via @Bindable.
-//  EDIT WHEN: Adding fields (location, years of experience) or changing validation.
+//  EDIT WHEN: Adding fields (location, years of experience), validation, or name-field focus.
 //
 
 import SwiftUI
@@ -24,10 +24,10 @@ struct BackgroundStepView: View {
                 OnboardingTextField(
                     title: "Your name",
                     placeholder: "Enter your name",
-                    text: $viewModel.name
+                    text: $viewModel.name,
+                    textContentType: .name,
+                    focusOnAppear: true
                 )
-                .textContentType(.name)
-                .autocorrectionDisabled()
 
                 OnboardingTextField(
                     title: "Current background",
